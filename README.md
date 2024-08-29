@@ -1,0 +1,7 @@
+- A working RESTful API for a bookstore with the following features:
+    - Fetch all books.
+    - Add a new book.
+    - Fetch a book by its ID.
+    - Update a book
+    - Delete a book
+- Tests for the API endpoints.
