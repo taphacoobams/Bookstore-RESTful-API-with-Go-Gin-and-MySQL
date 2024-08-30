@@ -53,6 +53,35 @@ func TestGetBooks(t *testing.T) {
 	}
 }
 
+func TestGetBooksById(t *testing.T) {
+	database.Connect()
+	router := SetupRouter()
+
+	bookID := 1
+
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/books/%d", bookID), nil)
+	if err != nil {
+		t.Fatalf("Failed to create request: %v", err)
+	}
+
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusOK, rr.Code, "Expected status OK, got %v", rr.Code)
+
+	var book models.Book
+	err = json.Unmarshal(rr.Body.Bytes(), &book)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal response body: %v", err)
+	}
+
+	assert.NotNil(t, book, "Expected book to be non-nil")
+	assert.Equal(t, int64(bookID), book.ID, "Expected book ID to match")
+	assert.NotNil(t, book.Title, "Expected book title to be non-nil")
+	assert.NotNil(t, book.Author, "Expected book author to be non-nil")
+	assert.NotNil(t, book.Price, "Expected book price to be non-nil")
+}
+
 func TestPostBooks(t *testing.T) {
 	database.Connect()
 	router := SetupRouter()
@@ -89,33 +118,4 @@ func TestPostBooks(t *testing.T) {
 	assert.Equal(t, book.Title, createdBook.Title, "Expected title to match")
 	assert.Equal(t, book.Author, createdBook.Author, "Expected author to match")
 	assert.Equal(t, book.Price, createdBook.Price, "Expected price to match")
-}
-
-func TestGetBooksById(t *testing.T) {
-	database.Connect()
-	router := SetupRouter()
-
-	bookID := 1
-
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/books/%d", bookID), nil)
-	if err != nil {
-		t.Fatalf("Failed to create request: %v", err)
-	}
-
-	rr := httptest.NewRecorder()
-	router.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusOK, rr.Code, "Expected status OK, got %v", rr.Code)
-
-	var book models.Book
-	err = json.Unmarshal(rr.Body.Bytes(), &book)
-	if err != nil {
-		t.Fatalf("Failed to unmarshal response body: %v", err)
-	}
-
-	assert.NotNil(t, book, "Expected book to be non-nil")
-	assert.Equal(t, int64(bookID), book.ID, "Expected book ID to match")
-	assert.NotNil(t, book.Title, "Expected book title to be non-nil")
-	assert.NotNil(t, book.Author, "Expected book author to be non-nil")
-	assert.NotNil(t, book.Price, "Expected book price to be non-nil")
 }
